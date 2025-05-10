@@ -1,4 +1,11 @@
 @echo off
+
+where python >nul 2>nul || (
+    echo Python is not installed or not in PATH.
+    pause
+    exit /b
+)
+
 REM Setup and Run Flask IP Resolver
 
 echo.
@@ -14,8 +21,9 @@ call venv\Scripts\activate
 
 echo.
 echo === Installing required packages ===
-pip install --upgrade pip
-pip install -r requirements.txt
+if not exist "venv\Lib\site-packages\flask" (
+    pip install -r requirements.txt
+)
 
 echo.
 echo === Starting Flask App ===
