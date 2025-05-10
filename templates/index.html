@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>IP2Location Resolver</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    #downloadBtn {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: none;
+    }
+    #downloadBtn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Upload IP CSV</h1>
+  <form id="uploadForm" enctype="multipart/form-data">
+    <input type="file" name="csvfile" accept=".csv" required />
+    <button type="submit">Upload & Resolve</button>
+  </form>
+
+  <button id="downloadBtn">Download CSV</button>
+  <div id="resultContainer"></div>
+
+  <script>
+    let currentCSV = "";
+
+    document.getElementById("uploadForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(e.target);
+      const resultContainer = document.getElementById("resultContainer");
+      const downloadBtn = document.getElementById("downloadBtn");
+
+      resultContainer.innerHTML = "<p>Processing...</p>";
+      downloadBtn.style.display = "none";
+
+      const response = await fetch("/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const text = await blob.text();
+        currentCSV = text;
+
+        const rows = text.trim().split("\n").map(row => row.split(","));
+        if (rows.length > 1) {
+          let html = "<table><thead><tr>";
+          rows[0].forEach(header => html += `<th>${header}</th>`);
+          html += "</tr></thead><tbody>";
+
+          for (let i = 1; i < rows.length; i++) {
+            html += "<tr>";
+            rows[i].forEach(col => html += `<td>${col}</td>`);
+            html += "</tr>";
+          }
+
+          html += "</tbody></table>";
+          resultContainer.innerHTML = html;
+          downloadBtn.style.display = "inline-block";
+        } else {
+          resultContainer.innerHTML = "<p>No data found.</p>";
+        }
+      } else {
+        resultContainer.innerHTML = "<p>Upload failed.</p>";
+      }
+    });
+
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+      const blob = new Blob([currentCSV], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "ip_results.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    });
+  </script>
+</body>
+</html>
