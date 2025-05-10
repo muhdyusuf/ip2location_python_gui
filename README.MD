@@ -12,8 +12,11 @@
 
 
     ```
-   ⚠️ Warning:
-    When you double-click `run.bat`, it will set up the environment and install dependencies on your local machine. Please ensure that you trust the code before running it, as it involves installing packages and running the application. Running untrusted code can pose security risks.
+      ⚠️ Warning:
+      When you double-click `run.bat`, it will set up the environment and install dependencies 
+      on your local machine. Please ensure that you trust the code before running it, as it 
+      involves installing packages and running the application. Running untrusted code can 
+      pose security risks.
     ```
 
 ### 3. **Access the Application**
